@@ -23,12 +23,14 @@ Este bot realiza un monitoreo continuo de la disponibilidad de asientos en secto
 ## 🔧 Instalación
 
 1. Clona el repositorio:
+
 ```bash
 git clone https://github.com/Lapsa09/botboca2.git
 cd botboca2
 ```
 
 2. Instala las dependencias:
+
 ```bash
 pnpm install
 ```
@@ -53,11 +55,13 @@ const SECTORES = [
 ```
 
 Sectores disponibles incluyen:
-- Populares: I, H, F, G, J, K
-- Tribunas: TN1-5, TS1-5
-- Plateas: LIC, PREND, PRS1-3, PRN1-3, PPN1-3, PPS1-3
-- VIP: MPO, MPV, MPV1, MPV2, PLCVS, PLCPREF
-- Palcos: M20, MC, MD, MI, MPA
+
+- Plateas Altas: I, H, F, G, J, K
+- Torres: TN1-5, TS1-5
+- Palcos: PPN1-3, PPS1-3
+- Plateas Medias: M, MD, MC, MI, CD, CI, AD, AC, AI, BD, BC, BI, DD, DI
+- Plateas Bajas: LID, LIC, LV, LII, LPD, LPC, LD, LPI
+- Plateas Preferenciales: PRS1-3, PRN1-3,
 - Y muchos más...
 
 ## 🎯 Uso
@@ -69,6 +73,7 @@ node index.js
 ```
 
 El bot comenzará a:
+
 1. Consultar la disponibilidad de sectores cada 5 segundos
 2. Mostrar en consola cuántos sectores tienen disponibilidad
 3. Cuando encuentre disponibilidad, mostrará los asientos disponibles

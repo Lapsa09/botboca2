@@ -136,8 +136,8 @@ while (true) {
         }),
         method: "POST",
       }
-    ).then((res) => res.json());
-    console.log("Respuesta de la reserva:", reservar);
+    );
+    if (reservar.ok) console.log({ success: true, message: "Reserva exitosa" });
     break;
   }
   await new Promise((r) => setTimeout(r, 5000));
