@@ -95,7 +95,7 @@ const SECTORES = [
 
 while (true) {
   const sectores = await fetch(
-    "https://bocasocios-gw.bocajuniors.com.ar/event/809/seat/section/availability",
+    "https://bocasocios-gw.bocajuniors.com.ar/event/811/seat/section/availability",
     {
       headers,
       body: null,
