@@ -94,14 +94,22 @@ const SECTORES = [
 ];
 
 while (true) {
-  const sectores = await fetch(
+  const sectoresResponse = await fetch(
     "https://bocasocios-gw.bocajuniors.com.ar/event/811/seat/section/availability",
     {
       headers,
       body: null,
       method: "GET",
     }
-  ).then((res) => res.json());
+  );
+
+  if (!sectoresResponse.ok) {
+    console.log("Error fetching sectores");
+    await new Promise((r) => setTimeout(r, 5000));
+    continue;
+  }
+
+  const sectores = await sectoresResponse.json();
 
   const disponibles = sectores.secciones
     .filter((sector) => sector.hayDisponibilidad)
@@ -125,19 +133,25 @@ while (true) {
       ":",
       asientos.ubicaciones.length
     );
-
-    const reservar = await fetch(
-      `https://bocasocios-gw.bocajuniors.com.ar/event/seat/reserve/${asientos.ubicaciones[0].nid}`,
-      {
-        headers,
-        body: JSON.stringify({
-          ubicacionNid: asientos.ubicaciones[0].nid,
-        }),
-        method: "POST",
+    for (const asiento of asientos.ubicaciones) {
+      const reservar = await fetch(
+        `https://bocasocios-gw.bocajuniors.com.ar/event/seat/reserve/${asiento.nid}`,
+        {
+          headers,
+          body: JSON.stringify({
+            ubicacionNid: asientos.ubicaciones[0].nid,
+          }),
+          method: "POST",
+        }
+      );
+      if (reservar.ok) {
+        console.log({ success: true, message: "Reserva exitosa" });
+        break;
+      } else {
+        const error = await reservar.json();
+        console.log({ success: false, message: error });
       }
-    );
-    if (reservar.ok) console.log({ success: true, message: "Reserva exitosa" });
-    break;
+    }
   }
   await new Promise((r) => setTimeout(r, 5000));
 }
