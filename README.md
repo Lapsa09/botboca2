@@ -13,12 +13,14 @@ Este bot realiza un monitoreo continuo de la disponibilidad de asientos en secto
 - Reserva automática del primer asiento disponible
 - Sistema de reintentos cada 5 segundos
 - Soporte para múltiples sectores del estadio
+- Login automático con credenciales por consola
 
 ## 📦 Requisitos Previos
 
 - Node.js (versión 14 o superior)
-- pnpm (gestor de paquetes)
-- Token de autenticación válido del sistema de socios de Boca Juniors
+- npm (gestor de paquetes)
+- Google Chrome instalado (el bot usa Puppeteer para automatización del navegador)
+- Credenciales válidas del sistema de socios de Boca Juniors (email y contraseña)
 
 ## 🔧 Instalación
 
@@ -32,12 +34,12 @@ cd botboca2
 2. Instala las dependencias:
 
 ```bash
-pnpm install
+npm install
 ```
 
-3. Configura tu token de autenticación en el archivo `index.js`:
-   - Reemplaza el valor del campo `authorization` en el objeto `headers`
-   - Actualiza el campo `cookie` con tus credenciales
+3. Verifica que la ruta de Chrome en `index.js` coincida con tu instalación:
+   - Por defecto está configurada para: `C:/Program Files/Google/Chrome/Application/chrome.exe`
+   - Si tienes Chrome en otra ubicación, actualiza la variable `executablePath`
 
 ## ⚙️ Configuración
 
@@ -72,19 +74,36 @@ Ejecuta el bot:
 node index.js
 ```
 
-El bot comenzará a:
+El bot te pedirá ingresar tus credenciales:
 
-1. Consultar la disponibilidad de sectores cada 5 segundos
-2. Mostrar en consola cuántos sectores tienen disponibilidad
-3. Cuando encuentre disponibilidad, mostrará los asientos disponibles
-4. Intentará reservar automáticamente el primer asiento disponible
+```
+=== Login a Boca Socios ===
+Ingrese su email: tu-email@ejemplo.com
+Ingrese su contraseña: tu-contraseña
+===========================
+```
+
+Una vez ingresadas las credenciales, el bot:
+
+1. Abrirá un navegador Chrome automatizado
+2. Iniciará sesión en el sistema de Boca Socios
+3. Navegará a la página de plateas del evento
+4. Monitoreará la disponibilidad de sectores cada 2 segundos
+5. Cuando encuentre disponibilidad, mostrará los asientos disponibles
+6. Intentará reservar automáticamente el primer asiento disponible
 
 ### Salida de Ejemplo
 
 ```
-Sectores con disponibilidad: 2
-Asientos disponibles en el sector 12345 : 15
-Respuesta de la reserva: { success: true, message: "Reserva exitosa" }
+Navegando a Boca Socios...
+Intentando iniciar sesión...
+Buscando botón de login...
+Botón de login encontrado, haciendo clic...
+¡Inicio de sesión exitoso!
+Ingresando a la página principal...
+Buscando sectores con disponibilidad...
+Asientos disponibles en el sector I : 15
+{ success: true, message: 'Reserva exitosa' }
 ```
 
 ## 📝 Estructura del Proyecto
@@ -100,14 +119,17 @@ botboca2/
 ## 🛠️ Tecnologías
 
 - **Node.js** - Entorno de ejecución
+- **Puppeteer** - Automatización del navegador para login y obtención de cookies
 - **node-fetch** - Cliente HTTP para realizar peticiones a la API
-- **pnpm** - Gestor de paquetes
+- **readline** - Módulo para capturar credenciales por consola
+- **npm** - Gestor de paquetes
 
 ## ⚠️ Advertencias
 
 - **Uso Responsable**: Este bot está diseñado para uso personal. Úsalo de manera responsable y respeta los términos de servicio de Boca Juniors.
-- **Seguridad**: Nunca compartas tu token de autenticación o cookies. Mantén tus credenciales seguras.
+- **Seguridad**: El bot solicita credenciales por consola en cada ejecución. Nunca compartas tus credenciales ni las guardes en el código fuente.
 - **Rate Limiting**: El bot hace peticiones cada 5 segundos. Modificar este intervalo puede resultar en bloqueos temporales.
+- **Navegador**: El bot requiere Chrome instalado y abrirá una instancia del navegador durante la ejecución para realizar el login automático.
 
 ## 📄 Licencia
 
