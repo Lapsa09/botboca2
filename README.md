@@ -8,17 +8,22 @@ Este bot realiza un monitoreo continuo de la disponibilidad de asientos en secto
 
 ## 🚀 Características
 
-- Monitoreo en tiempo real de disponibilidad de asientos
-- Configuración flexible de sectores a monitorear
-- Reserva automática del primer asiento disponible
-- Sistema de reintentos cada 5 segundos
-- Soporte para múltiples sectores del estadio
-- Login automático con credenciales por consola
+- ✅ Monitoreo en tiempo real de disponibilidad de asientos
+- ✅ Configuración flexible de sectores a monitorear
+- ✅ Reserva automática del primer asiento disponible
+- ✅ Sistema de reintentos configurable
+- ✅ Soporte para múltiples sectores del estadio
+- ✅ Login automático con credenciales por consola
+- ✅ **Entrada de contraseña oculta (modo silencioso)**
+- ✅ Sistema de logging mejorado con emojis informativos
+- ✅ Manejo robusto de errores con reintentos automáticos
+- ✅ Cierre graceful del navegador (Ctrl+C seguro)
+- ✅ Configuración por variables de entorno (.env)
 
 ## 📦 Requisitos Previos
 
-- Node.js (versión 14 o superior)
-- npm (gestor de paquetes)
+- Node.js (versión 18 o superior)
+- pnpm (gestor de paquetes) o npm
 - Google Chrome instalado (el bot usa Puppeteer para automatización del navegador)
 - Credenciales válidas del sistema de socios de Boca Juniors (email y contraseña)
 
@@ -34,29 +39,22 @@ cd botboca2
 2. Instala las dependencias:
 
 ```bash
+pnpm install
+# o si usas npm
 npm install
 ```
-
-3. Verifica que la ruta de Chrome en `index.js` coincida con tu instalación:
-   - Por defecto está configurada para: `C:/Program Files/Google/Chrome/Application/chrome.exe`
-   - Si tienes Chrome en otra ubicación, actualiza la variable `executablePath`
 
 ## ⚙️ Configuración
 
 ### Sectores Disponibles
 
-Puedes configurar los sectores que deseas monitorear editando el array `SECTORES` en `index.js`:
+Puedes configurar los sectores que deseas monitorear en el archivo `.env` usando la variable `SECTORES` (separados por coma):
 
-```javascript
-const SECTORES = [
-  "I",
-  "H",
-  // Descomenta los sectores que desees monitorear:
-  // "F", "G", "J", "K", "LIC", "TS4", "TS5", etc.
-];
+```bash
+SECTORES=I,F,G,J,H
 ```
 
-Sectores disponibles incluyen:
+Lista completa de sectores disponibles:
 
 - Plateas Altas: I, H, F, G, J, K
 - Torres: TN1-5, TS1-5
@@ -74,14 +72,16 @@ Ejecuta el bot:
 node index.js
 ```
 
-El bot te pedirá ingresar tus credenciales:
+El bot te pedirá ingresar tus credenciales de forma segura:
 
 ```
 === Login a Boca Socios ===
 Ingrese su email: tu-email@ejemplo.com
-Ingrese su contraseña: tu-contraseña
+Ingrese su contraseña:
 ===========================
 ```
+
+> 🔒 **Nota de Seguridad**: La contraseña se oculta completamente mientras la escribes (modo silencioso como en Linux/Unix). No se muestra ningún carácter, pero la contraseña se está capturando correctamente. Solo presiona Enter cuando termines.
 
 Una vez ingresadas las credenciales, el bot:
 
@@ -131,7 +131,7 @@ botboca2/
 - **Rate Limiting**: El bot hace peticiones cada 5 segundos. Modificar este intervalo puede resultar en bloqueos temporales.
 - **Navegador**: El bot requiere Chrome instalado y abrirá una instancia del navegador durante la ejecución para realizar el login automático.
 
-## 📄 Licencia
+## � Licencia
 
 ISC
 

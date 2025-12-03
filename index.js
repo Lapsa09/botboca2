@@ -1,6 +1,11 @@
 import fetch from "node-fetch";
 import puppeteer from "puppeteer";
 import readline from "readline";
+import { stdin as input, stdout as output } from "process";
+
+const FETCH_ROUTE = "https://bocasocios-gw.bocajuniors.com.ar/event";
+
+const MATCH_NID = 815; // Cambiar al NID del partido deseado
 
 const SECTORES = [
   "I",
@@ -80,7 +85,7 @@ const TIMEOUT = 5000;
 
 let puntos = 0;
 
-// Function to get user input from console
+// Función para obtener input del usuario
 function getUserInput(question) {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -90,15 +95,74 @@ function getUserInput(question) {
   return new Promise((resolve) => {
     rl.question(question, (answer) => {
       rl.close();
-      resolve(answer);
+      resolve(answer.trim());
     });
+  });
+}
+
+// Función para obtener contraseña oculta (modo silencioso - no muestra nada como en Linux)
+function getPasswordInput(question) {
+  return new Promise((resolve) => {
+    // Crear readline SIN output para deshabilitar el echo
+    const rl = readline.createInterface({
+      input,
+      output: process.stdout,
+      terminal: false, // Deshabilitar terminal para que no haga echo
+    });
+
+    process.stdout.write(question);
+
+    let password = "";
+
+    const onData = (char) => {
+      char = char.toString();
+
+      switch (char) {
+        case "\n":
+        case "\r":
+        case "\u0004": // Ctrl+D
+          process.stdin.setRawMode(false);
+          process.stdin.removeListener("data", onData);
+          rl.close();
+          process.stdout.write("\n");
+          resolve(password);
+          break;
+        case "\u0003": // Ctrl+C
+          process.stdin.setRawMode(false);
+          process.stdin.removeListener("data", onData);
+          rl.close();
+          process.exit(0);
+          break;
+        case "\u007F": // Backspace (Linux/Mac)
+        case "\b": // Backspace (Windows)
+        case "\x08": // Backspace alternativo
+          if (password.length > 0) {
+            password = password.slice(0, -1);
+            // No se muestra nada - entrada completamente silenciosa
+          }
+          break;
+        default:
+          // Solo agregar caracteres imprimibles (espacio a ~)
+          if (char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126) {
+            password += char;
+            // No se muestra nada - entrada completamente silenciosa
+          }
+          break;
+      }
+    };
+
+    process.stdin.on("data", onData);
+
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode(true);
+    }
   });
 }
 
 // Get credentials from user
 console.log("=== Login a Boca Socios ===");
 const userEmail = await getUserInput("Ingrese su email: ");
-const userPassword = await getUserInput("Ingrese su contraseña: ");
+const userPassword = await getPasswordInput("Ingrese su contraseña: ");
 console.log("===========================\n");
 
 const browser = await puppeteer.launch({
@@ -111,10 +175,9 @@ const [page] = await browser.pages();
 async function server() {
   while (true) {
     const sectoresResponse = await fetch(
-      "https://bocasocios-gw.bocajuniors.com.ar/event/812/seat/section/availability",
+      `${FETCH_ROUTE}/${MATCH_NID}/seat/section/availability`,
       {
         headers,
-        method: "GET",
       }
     );
 
@@ -145,10 +208,9 @@ async function server() {
     if (disponibles.length > 0) {
       for (const sector of disponibles) {
         const asientos = await fetch(
-          `https://bocasocios-gw.bocajuniors.com.ar/event/seat/section/${sector.nid}/availability`,
+          `${FETCH_ROUTE}/seat/section/${sector.nid}/availability`,
           {
             headers,
-            method: "GET",
           }
         ).then((res) => res.json());
 
@@ -160,7 +222,7 @@ async function server() {
         );
         for (const asiento of asientos.ubicaciones) {
           const reservar = await fetch(
-            `https://bocasocios-gw.bocajuniors.com.ar/event/seat/reserve/${asiento.nid}`,
+            `${FETCH_ROUTE}/seat/reserve/${asiento.nid}`,
             {
               headers,
               body: JSON.stringify({
@@ -256,11 +318,11 @@ try {
 }
 console.log("Ingresando a la página principal...");
 await page.waitForNavigation({ waitUntil: "networkidle0" });
-await page.goto("https://bocasocios.bocajuniors.com.ar/matches/812/plateas");
+await page.goto(
+  `https://bocasocios.bocajuniors.com.ar/matches/${MATCH_NID}/plateas`
+);
 await page
-  .waitForRequest(
-    "https://bocasocios-gw.bocajuniors.com.ar/event/812/seat/section/availability"
-  )
+  .waitForRequest(`${FETCH_ROUTE}/${MATCH_NID}/seat/section/availability`)
   .then((res) => {
     headers = res.headers();
   });
